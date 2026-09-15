@@ -1,0 +1,17 @@
+Package: timeknit
+Title: Report Chunk Execution Times While Knitting
+Version: 0.1.0
+Authors@R: 
+    person("Colin", "Rundel", email = "rundel@gmail.com", role = c("aut", "cre"))
+Description: A drop-in progress display for 'knitr', and therefore for 'Quarto'
+    documents rendered with the knitr engine, that appends the elapsed execution
+    time to each chunk's progress line and summarizes the slowest chunks when the
+    document finishes.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Suggests: 
+    knitr,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.1.0
