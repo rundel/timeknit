@@ -1,17 +1,23 @@
 Package: timeknit
 Title: Report Chunk Execution Times While Knitting
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
-    person("Colin", "Rundel", email = "rundel@gmail.com", role = c("aut", "cre"))
+    person("Colin", "Rundel", email = "cr173@duke.edu", role = c("aut", "cre"))
 Description: A drop-in progress display for 'knitr', and therefore for 'Quarto'
     documents rendered with the knitr engine, that appends the elapsed execution
     time to each chunk's progress line and summarizes the slowest chunks when the
-    document finishes.
+    document finishes. Includes helpers to set a project up and to report the
+    current status.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
+Imports: 
+    cli,
+    knitr (>= 1.42),
+    utils
 Suggests: 
-    knitr,
-    testthat (>= 3.0.0)
+    jsonlite,
+    testthat (>= 3.2.0),
+    xfun
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0

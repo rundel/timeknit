@@ -12,9 +12,10 @@ a form that can be passed back to \code{options()} to restore it.
 }
 \description{
 Sets the \code{knitr.progress.fun} option so that knitr, and therefore Quarto
-documents rendered with the knitr engine, use \code{\link[=knit_progress]{knit_progress()}}. The usual
-place to call it is your \code{.Rprofile}, either the one in your home directory
-or a project specific one next to the documents you render:
+documents rendered with the knitr engine, use \code{\link[=knit_progress]{knit_progress()}}. It only
+affects the current R session; to make a project use it every time, see
+\code{\link[=use_timeknit_project]{use_timeknit_project()}}, which puts the call into the project's profile.
+If you prefer a global setup, add the following to \verb{~/.Rprofile} yourself:
 }
 \details{
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{if (requireNamespace("timeknit", quietly = TRUE)) timeknit::use_timeknit()

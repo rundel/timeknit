@@ -2,4 +2,7 @@
 
 export(format_duration)
 export(knit_progress)
+export(remove_timeknit_project)
+export(sitrep)
 export(use_timeknit)
+export(use_timeknit_project)
