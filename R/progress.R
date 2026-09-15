@@ -5,7 +5,8 @@
 #' code chunk finishes its elapsed wall clock time is appended to that line
 #' using an appropriate unit (see [format_duration()]). When the document
 #' finishes, a short summary reports the total chunk time and the slowest
-#' chunks.
+#' chunks, and a JSON record of the timings is written for editor integrations
+#' (see [timeknit-record]).
 #'
 #' knitr calls this function itself with the number of blocks and their labels,
 #' then calls the returned `update()`, `interrupt()`, and `done()` functions as
@@ -25,6 +26,8 @@
 #'   `TRUE`.
 #' * `timeknit.text_blocks`: whether to print lines for text (non-chunk)
 #'   blocks as knitr does by default. Defaults to `TRUE`.
+#' * `timeknit.record`: whether to write the JSON timing record, or a directory
+#'   to write it to. Defaults to `TRUE`; see [timeknit-record].
 #' * `knitr.progress.output`: knitr's own option for where progress output is
 #'   written. Defaults to the console.
 #'
@@ -52,15 +55,20 @@ knit_progress = function(total, labels) {
     formatC(seq_len(total), width = nchar(total), format = "d"), "/", total
   )
 
+  target = if (depth == 1) record_target()
+  lines = if (!is.null(target)) block_lines(total)
+  code = if (!is.null(target)) chunk_code(labels)
+
   elapsed = rep(NA_real_, total)
   current = NA_integer_
   started = NA_real_
   line_open = FALSE
   line_broken = FALSE
   interrupted = FALSE
+  failed = NA_character_
 
   out = function(..., err = FALSE) {
-    cat(..., sep = "", file = if (err && identical(con, "")) stderr() else con)
+    cat(..., sep = "", file = if (err && identical(con, "")) stderr() else con, append = TRUE)
   }
 
   close_line = function(err = FALSE) {
@@ -88,6 +96,7 @@ knit_progress = function(total, labels) {
   }
 
   interrupt = function() {
+    failed <<- if (!is.na(current) && is_chunk[current]) labels[current] else NA_character_
     close_line(err = TRUE)
     interrupted <<- TRUE
   }
@@ -96,6 +105,13 @@ knit_progress = function(total, labels) {
     close_line()
     .state$bars = .state$bars[seq_len(depth - 1)]
     on.exit(flush_output(con))
+
+    if (!is.null(target)) {
+      write_record(
+        target, labels[is_chunk], lines[is_chunk, , drop = FALSE], elapsed[is_chunk], code[is_chunk],
+        status = if (interrupted) "error" else "complete", failed = failed
+      )
+    }
     if (depth > 1 || interrupted || !isTRUE(getOption("timeknit.summary", TRUE))) {
       return(invisible())
     }

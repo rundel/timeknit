@@ -20,7 +20,8 @@ document is printed as \code{i/total [label]}, exactly as knitr does, and once a
 code chunk finishes its elapsed wall clock time is appended to that line
 using an appropriate unit (see \code{\link[=format_duration]{format_duration()}}). When the document
 finishes, a short summary reports the total chunk time and the slowest
-chunks.
+chunks, and a JSON record of the timings is written for editor integrations
+(see \link{timeknit-record}).
 }
 \details{
 knitr calls this function itself with the number of blocks and their labels,
@@ -43,6 +44,8 @@ Defaults to 5, and \code{0} lists none.
 \code{TRUE}.
 \item \code{timeknit.text_blocks}: whether to print lines for text (non-chunk)
 blocks as knitr does by default. Defaults to \code{TRUE}.
+\item \code{timeknit.record}: whether to write the JSON timing record, or a directory
+to write it to. Defaults to \code{TRUE}; see \link{timeknit-record}.
 \item \code{knitr.progress.output}: knitr's own option for where progress output is
 written. Defaults to the console.
 }

@@ -1,5 +1,5 @@
 run_progress = function(labels, steps, ...) {
-  op = options(...)
+  op = options(timeknit.record = FALSE, ...)
   on.exit(options(op))
   capture.output({
     pb = knit_progress(length(labels), labels)
@@ -82,6 +82,8 @@ test_that("a connection from knitr.progress.output receives all output", {
 })
 
 test_that("nested displays are indented, skip the summary, and repeat the parent line", {
+  op = options(timeknit.record = FALSE)
+  on.exit(options(op))
   out = capture.output({
     parent = knit_progress(2, c("outer", ""))
     parent$update(1)
@@ -103,12 +105,41 @@ test_that("nested displays are indented, skip the summary, and repeat the parent
   expect_length(timeknit:::.state$bars, 0)
 })
 
+test_that("filename output retains every line, nested output, and error timing", {
+  file = tempfile()
+  writeLines("Earlier output", file)
+  op = options(knitr.progress.output = file)
+  on.exit(options(op))
+  parent = knit_progress(2, c("outer", "last"))
+  parent$update(1)
+  cat("\n", file = file, append = TRUE)
+  child = knit_progress(1, "inner")
+  child$update(1)
+  child$done()
+  parent$update(2)
+  parent$done()
+  output = readLines(file)
+  expect_equal(output[1:2], c("Earlier output", "1/2 [outer]"))
+  expect_match(output[3], "^  1/1 \\[inner\\]  .+s$")
+  expect_match(output[4], "^1/2 \\[outer\\]  .+s$")
+  expect_match(output[5], "^2/2 \\[last\\]   .+s$")
+  expect_match(output[6], "^Total chunk time: .* \\(2 chunks\\)$")
+  expect_equal(output[7], "Slowest chunks:")
+  expect_length(output, 9)
+  pb = knit_progress(1, "boom")
+  pb$update(1)
+  pb$interrupt()
+  pb$done()
+  expect_equal(readLines(file)[seq_along(output)], output)
+  expect_match(tail(readLines(file), 1), "^1/1 \\[boom\\]  .+s$")
+  expect_length(readLines(file), 10)
+})
+
 test_that("knitr picks the display up through knitr.progress.fun", {
-  skip_if_not_installed("knitr")
   skip_if_not_installed("xfun")
   skip_if(xfun::is_R_CMD_check(), "knitr disables progress under R CMD check")
 
-  op = options(knitr.progress.fun = knit_progress)
+  op = options(knitr.progress.fun = knit_progress, timeknit.record = FALSE)
   on.exit(options(op))
   src = c("Some text", "", "```{r wait}", "Sys.sleep(0.02)", "```", "", "More text")
   out = capture.output({
