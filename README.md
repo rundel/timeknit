@@ -35,6 +35,11 @@ Slowest chunks:
 Each chunk's line is printed when the chunk starts and its time is appended when
 it finishes, so the line without a time is always the chunk currently running.
 
+The timings are also recorded to disk, and the companion
+[timeknit-vscode](https://github.com/rundel/timeknit-vscode) extension shows
+them inline next to each chunk in Positron and VS Code. See
+[Timing records for editors](#timing-records-for-editors) below.
+
 ## Installation
 
 ```r
@@ -140,8 +145,8 @@ of the chunk timings to `<root>/.quarto/timeknit/<relative path>.json`, where
 renders) or, outside Quarto, the document's own directory. Each record holds the
 document path, the render time and status, the total, and one entry per chunk
 with its label, source line range, elapsed seconds, and code. The companion
-`timeknit-vscode` extension watches these files and shows the times inline in
-Positron and VS Code. Quarto projects already ignore `.quarto/` in git; add it
-to `.gitignore` in other projects. Set `options(timeknit.record = FALSE)` to
-turn recording off, or give a directory to write the records elsewhere. See
-`?timeknit-record` for the schema.
+[timeknit-vscode](https://github.com/rundel/timeknit-vscode) extension watches
+these files and shows the times inline in Positron and VS Code. Quarto projects
+already ignore `.quarto/` in git; add it to `.gitignore` in other projects. Set
+`options(timeknit.record = FALSE)` to turn recording off, or give a directory to
+write the records elsewhere. See `?timeknit-record` for the schema.
