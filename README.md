@@ -42,14 +42,16 @@ them inline next to each chunk in Positron and VS Code. See
 
 ## Installation
 
+The package is not on CRAN. Install it from GitHub with pak:
+
 ```r
-pak::local_install("path/to/timeknit")
+pak::pak("rundel/timeknit")
 ```
 
-or from the package directory:
+or with remotes:
 
-```sh
-R CMD INSTALL .
+```r
+remotes::install_github("rundel/timeknit")
 ```
 
 ## How it works
@@ -118,6 +120,7 @@ For a single session, call `timeknit::use_timeknit()` before rendering.
 | `timeknit.slowest`      | `5`     | Number of slowest chunks listed at the end, `0` for none |
 | `timeknit.summary`      | `TRUE`  | Print the total and slowest chunks at the end       |
 | `timeknit.text_blocks`  | `TRUE`  | Print lines for text blocks between chunks, as knitr does |
+| `timeknit.record`       | `TRUE`  | Write the JSON timing record for editors, `FALSE` for none, or a directory to write it elsewhere |
 
 Set them with `options()`, for example next to `use_timeknit()` in a profile.
 
