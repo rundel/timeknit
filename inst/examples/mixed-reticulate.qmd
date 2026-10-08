@@ -1,0 +1,42 @@
+---
+title: "R and Python chunks with timeknit"
+format: html
+engine: knitr
+---
+
+A knitr document can mix R and Python chunks; reticulate runs the Python
+chunks and shares objects between the two languages. timeknit times every
+chunk the same way regardless of its engine. Render this file with
+`quarto render mixed-reticulate.qmd` or `rmarkdown::render()` after activating
+timeknit (see `?use_timeknit`).
+
+```{r}
+#| label: r-data
+library(reticulate)
+x = rnorm(1e5)
+```
+
+The first Python chunk also pays for starting the interpreter and importing
+modules, so it is often the slowest chunk in the document.
+
+```{python}
+#| label: py-import
+import numpy as np
+import time
+```
+
+```{python}
+#| label: py-compute
+arr = np.array(r.x)
+time.sleep(0.5)
+summary = {"mean": arr.mean(), "sd": arr.std()}
+```
+
+```{r}
+#| label: r-back
+str(py$summary)
+```
+
+```{python}
+print("an unnamed python chunk")
+```

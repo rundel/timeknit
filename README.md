@@ -140,6 +140,25 @@ Set them with `options()`, for example next to `use_timeknit()` in a profile.
 - Under `R CMD check` knitr disables progress output entirely, so nothing is
   printed there.
 
+## Python chunks and reticulate
+
+Documents that mix R and Python chunks, with reticulate running the Python
+ones, need no extra setup. knitr reports progress per chunk regardless of the
+engine, so Python chunks get their times on the progress line, in the summary,
+and in the timing record, and the editor extension annotates them like R
+chunks. The example document in `inst/examples/mixed-reticulate.qmd` shows a
+typical mix.
+
+Two things are worth knowing:
+
+- The first Python chunk also pays for starting the interpreter and importing
+  modules, so it is often the slowest chunk in a document even when it does
+  little work.
+- Output that bypasses knitr's capture, such as reticulate's startup messages
+  or a native library writing directly to the terminal, lands in the middle of
+  the running chunk's progress line and pushes its time onto the next line.
+  This is the same text knitr's default display would show after the line.
+
 ## Timing records for editors
 
 Whenever a document is knitted from a file, timeknit also writes a JSON record
