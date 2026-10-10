@@ -79,7 +79,7 @@ saved_profile_prefix = "# timeknit saved R_PROFILE_USER: "
 
 find_root = function(path = ".") {
   if (!dir.exists(path)) cli::cli_abort("{.path {path}} is not a directory")
-  path = normalizePath(path)
+  path = normalize_path(path)
   dir = path
   repeat {
     if (!is.null(root_marker(dir))) return(dir)
@@ -108,6 +108,12 @@ in_git_repo = function(dir) {
     if (identical(parent, dir)) return(FALSE)
     dir = parent
   }
+}
+
+# Forward slashes throughout, since dirname() returns them on Windows while
+# normalizePath() defaults to backslashes.
+normalize_path = function(path) {
+  chartr("\\", "/", normalizePath(path, winslash = "/", mustWork = FALSE))
 }
 
 user_profile_path = function() {
@@ -274,21 +280,31 @@ profile_user_line = function(root) {
   paste0("R_PROFILE_USER='", target, "'")
 }
 
+is_profile_user_line = function(lines, root) {
+  target = normalize_path(file.path(root, profile_name))
+  vapply(lines, function(line) {
+    value = dotenv_value(line, "R_PROFILE_USER")
+    !is.na(value) && identical(normalize_path(value), target)
+  }, logical(1), USE.NAMES = FALSE)
+}
+
 update_environment_local = function(root) {
   file = file.path(root, env_local_name)
   wanted = profile_user_line(root)
   lines = if (file.exists(file)) read_lines(file) else character()
   i = grep("^\\s*(export\\s+)?R_PROFILE_USER\\s*=", lines)
 
-  if (length(i) == 1L && identical(trimws(lines[i]), wanted)) {
+  managed = is_profile_user_line(lines, root)
+
+  if (length(i) == 1L && managed[i]) {
     cli::cli_alert_success("{.path {env_local_name}} already points {.envvar R_PROFILE_USER} at {.path {profile_name}}")
     return(invisible(FALSE))
   }
   if (length(i)) {
     old = dotenv_value(lines, "R_PROFILE_USER")
-    saved = i[trimws(lines[i]) != wanted]
+    saved = i[!managed[i]]
     lines[saved] = paste0(saved_profile_prefix, lines[saved])
-    lines = lines[trimws(lines) != wanted]
+    lines = lines[!managed]
     cli::cli_alert_info("Preserving {.envvar R_PROFILE_USER} ({.path {old}}) in {.path {env_local_name}}")
   } else {
     cli::cli_alert_success("Setting {.envvar R_PROFILE_USER} in {.path {env_local_name}}")
@@ -302,7 +318,7 @@ remove_environment_local = function(root) {
   file = file.path(root, env_local_name)
   if (!file.exists(file)) return(invisible(FALSE))
   lines = read_lines(file)
-  i = which(trimws(lines) == profile_user_line(root))
+  i = which(is_profile_user_line(lines, root))
   saved = startsWith(lines, saved_profile_prefix)
   if (length(i) == 0 && !any(saved)) return(invisible(FALSE))
 
@@ -325,7 +341,7 @@ original_profile_user = function(root) {
     if (!file.exists(file)) next
     lines = read_lines(file)
     # Ignore our active assignment, then recover the original assignments in order.
-    lines = lines[trimws(lines) != profile_user_line(root)]
+    lines = lines[!is_profile_user_line(lines, root)]
     saved = startsWith(lines, saved_profile_prefix)
     lines[saved] = substring(lines[saved], nchar(saved_profile_prefix) + 1L)
     value = dotenv_value(lines, "R_PROFILE_USER")

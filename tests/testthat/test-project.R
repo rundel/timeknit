@@ -13,7 +13,7 @@ make_project = function(quarto = TRUE, git = TRUE,
                         docs = c("index.qmd", "lectures/lec01.qmd", "lectures/lec02.qmd")) {
   root = tempfile("proj")
   dir.create(root)
-  root = normalizePath(root)
+  root = normalize_path(root)
   if (quarto) writeLines(c("project:", "  type: default"), file.path(root, "_quarto.yml"))
   if (git) dir.create(file.path(root, ".git"))
   for (doc in docs) {
@@ -28,7 +28,7 @@ test_that("find_root walks up to a project marker", {
   expect_equal(find_root(file.path(root, "lectures")), root)
   plain = tempfile("plain")
   dir.create(plain)
-  expect_equal(find_root(plain), normalizePath(plain))
+  expect_equal(find_root(plain), normalize_path(plain))
   expect_error(find_root(file.path(plain, "nope")), "not a directory")
 })
 
@@ -133,13 +133,26 @@ test_that("setup repairs a later assignment after an existing managed assignment
   expect_equal(readLines(file), "R_PROFILE_USER=/later")
 })
 
+test_that("an assignment written with backslashes is recognised as managed", {
+  root = make_project(git = FALSE)
+  file = file.path(root, "_environment.local")
+  writeLines(paste0("R_PROFILE_USER='", chartr("/", "\\", file.path(root, profile_name)), "'"), file)
+  suppressMessages(use_timeknit_project(root))
+  expect_length(readLines(file), 1)
+  expect_true(is.na(original_profile_user(root)))
+  suppressMessages(remove_timeknit_project(root))
+  expect_false(file.exists(file))
+})
+
 test_that("custom profiles are loaded before activation and survive repeated setup", {
   local_fake_home()
   op = options(knitr.progress.fun = NULL, tk.custom = NULL)
   on.exit(options(op))
   for (env_file in c("_environment.local", "_environment")) {
     root = make_project(git = FALSE)
-    custom = file.path(root, 'custom "profile".R')
+    # Windows file names cannot contain double quotes.
+    name = if (.Platform$OS.type == "windows") "custom profile.R" else 'custom "profile".R'
+    custom = file.path(root, name)
     writeLines(c('options(tk.custom = "loaded")',
                  'options(knitr.progress.fun = NULL)'), custom)
     original = paste0("R_PROFILE_USER='", custom, "'")
