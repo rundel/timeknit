@@ -1,4 +1,4 @@
-# timeknit
+# timeknit <a href="https://rundel.github.io/timeknit/"><img src="man/figures/logo.png" align="right" height="138" alt="timeknit logo: a copper yarn-ball stopwatch" /></a>
 
 A drop-in progress display for knitr, and Quarto documents using the knitr engine, that appends the elapsed execution time to each chunk's progress line and summarizes the slowest chunks when the document finishes.
 
