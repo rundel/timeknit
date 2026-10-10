@@ -171,4 +171,5 @@ with its label, source line range, elapsed seconds, and code. The companion
 these files and shows the times inline in Positron and VS Code. Quarto projects
 already ignore `.quarto/` in git; add it to `.gitignore` in other projects. Set
 `options(timeknit.record = FALSE)` to turn recording off, or give a directory to
-write the records elsewhere. See `?timeknit-record` for the schema.
+write the records elsewhere. See
+[`?timeknit-record`](https://rundel.github.io/timeknit/reference/timeknit-record.html) for the schema.

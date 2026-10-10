@@ -1,0 +1,28 @@
+url: https://rundel.github.io/timeknit/
+
+template:
+  bootstrap: 5
+
+navbar:
+  structure:
+    left: [intro, reference, news]
+    right: [search, extension, github]
+  components:
+    extension:
+      text: Editor extension
+      href: https://github.com/rundel/timeknit-vscode
+      aria-label: timeknit extension for Positron and VS Code
+
+reference:
+  - title: Setup
+    contents:
+      - use_timeknit_project
+      - use_timeknit
+      - sitrep
+  - title: Progress display
+    contents:
+      - knit_progress
+      - format_duration
+  - title: Timing records
+    contents:
+      - timeknit-record

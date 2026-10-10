@@ -9,6 +9,8 @@ Description: A drop-in progress display for 'knitr', and therefore for 'Quarto'
     document finishes. Includes helpers to set a project up and to report the
     current status.
 License: MIT + file LICENSE
+URL: https://rundel.github.io/timeknit/, https://github.com/rundel/timeknit
+BugReports: https://github.com/rundel/timeknit/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports: 
